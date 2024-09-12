@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!---- >
+    https://developers.google.com/chart/interactive/docs/gallery/geochart#full
+    <!---->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['geochart']});
+      google.charts.setOnLoadCallback(drawRegionsMap);
+
+      function drawRegionsMap() {
+
+        var data = google.visualization.arrayToDataTable([
+          ['State', 'Select'],
+          ['US-CA', 0],
+      
+        ]);
+
+        var options = {
+          region: 'US-CA',
+          domain:'US',
+          displayMode: 'regions',
+          width: 150,
+          height: 150,
+          resolution: 'provinces',
+          keepAspectRatio: true,
+          legend: 'none',
+          enableRegionInteractivity: false,
+          datalessRegionColor: 'transparent',
+          defaultColor: 'transparent',
+
+          backgroundColor: {
+            fill: 'transparent',
+            stroke: 'blue',
+            strokeWidth: 3
+          },
+        };
+
+        var container = document.getElementById('geochart');
+
+        var chart = new google.visualization.GeoChart(document.getElementById('geochart'));
+
+          google.visualization.events.addListener(chart, 'ready', function () {
+    // change inactive stroke color
+    var countries = container.getElementsByTagName('path');
+    Array.prototype.forEach.call(countries, function (path) {
+      path.setAttribute('stroke', 'transparent');
+    });
+
+    // change active stroke color, build mutation observer
+    var observer = new MutationObserver(function (nodes) {
+      Array.prototype.forEach.call(nodes, function(node) {
+        // check for new nodes
+        if (node.addedNodes.length > 0) {
+          Array.prototype.forEach.call(node.addedNodes, function(addedNode) {
+            // the tooltip element will also be here, we only want the group elements
+            if (addedNode.tagName === 'g') {
+              // find children of the group element
+              Array.prototype.forEach.call(addedNode.childNodes, function(childNode) {
+                // check for path element, change stroke
+                if (childNode.tagName === 'path') {
+                  childNode.setAttribute('stroke', 'transparent');
+                }
+              });
+            }
+          });
+        }
+      });
+    });
+
+    // activate mutation observer
+    observer.observe(container, {
+      childList: true,
+      subtree: true
+    });
+  });
+
+        chart.draw(data, options);
+      }
+    </script>
+  </head>
+  <body>
+    <div id="geochart" style="width: 900px; height: 500px;"></div>
+  </body>
+</html>
